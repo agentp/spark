@@ -1,0 +1,10 @@
+.DS_Store
+.webassets-cache
+node_modules
+sys
+__pycache__
+app/static/gen_files
+app.db
+logs
+db_repository
+
