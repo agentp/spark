@@ -6,24 +6,35 @@ from app.server.Models import ModelFactory, db
 
 ns = api.namespace('sparks', description='All the brilliant sparks to light up the world')
 
+user = api.model('user', {
+    'id': fields.Integer(readOnly=True, description='The unique identifier'),
+    'email': fields.String(required=True, description='Email ID'),
+    'password': fields.String(required=True, description='Password')
+})
+
 message = api.model('message', {
     'id': fields.Integer(readOnly=True, description='The unique identifier'),
     'body': fields.String(required=True, description='The Title of the spark'),
-    'user_id': fields.Integer(required=True, description='Owner of this idea'),
-    'rouse_user_list_id':  fields.Integer(required=True, description='List of users who admired the ideas and want it to grow'),
-    'douse_user_list_id':  fields.Integer(required=True, description='List of users who despise the ideas')
+    'owner': fields.Nested(user),
+    'rouse_user_list':  fields.List(fields.Nested(user)),
+    'douse_user_list':  fields.List(fields.Nested(user)),
+})
+
+fire = api.model('Spark', {
+    'id': fields.Integer(readOnly=True, description='The unique identifier'),
+    'messages': fields.List(fields.Nested(spark))
 })
 
 spark = api.model('Spark', {
     'id': fields.Integer(readOnly=True, description='The unique identifier'),
-    #'flame_list_id': fields.Integer(required=True, description='The Flames to which this spark is assigned'),
+    'fires': fields.List(fields.Nested(fire)),
     'title': fields.String(required=True, description='The Title of the spark'),
-    'body': fields.String(required=True, description='The Body of the spark')
-    #'message_list_id': fields.Integer(required=True, description='List of messages'),
-    #'user_id': fields.Integer(required=True, description='Owner of this idea'),
-    #'rouse_user_list_id':  fields.Integer(required=True, description='List of users who admired the ideas and want it to grow'),
-    #'douse_user_list_id':  fields.Integer(required=True, description='List of users who despise the ideas'),
-    #'reignite_user_list_id':  fields.Integer(required=True, description='List of users who suggest it to their Tribes')
+    'body': fields.String(required=True, description='The Body of the spark'),
+    'messages': fields.List(fields.Nested(message)),
+    'owner': fields.Nested(user),
+    'rouse_user_list':  fields.List(fields.Nested(user)),
+    'douse_user_list':  fields.List(fields.Nested(user)),
+    'reignite_user_list':  fields.List(fields.Nested(user)),
 })
 
 @ns.route('/')
