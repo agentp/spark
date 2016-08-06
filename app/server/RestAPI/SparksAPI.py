@@ -1,52 +1,8 @@
 from flask import Flask
-from flask_restplus import Resource, Api
+from flask_restplus import Resource, fields
 from app import app
 from app import api
-
-################## Test Data (Model) ################### 
-####### Convert to Database access Later #######
-
-class SparkDb(object):
-    def __init__(self):
-        self.counter = 0
-        self.sparks = []
-
-    def get(self, id):
-        for spark in self.sparks:
-            if spark['id'] == id:
-                return spark
-        api.abort(404, "Spark {} doesn't exist".format(id))
-
-    def create(self, data):
-        spark = data
-        spark['id'] = self.counter = self.counter + 1
-        self.sparks.append(spark)
-        return spark
-
-    def update(self, id, data):
-        spark = self.get(id)
-        spark.update(data)
-        return spark
-
-    def delete(self, id):
-        spark = self.get(id)
-        self.sparks.remove(spark)
-
-class DataBase(object):
-    def __init__(self):
-        self.sparks = SparkDb()
-
-    def GetSparkDb(self):
-        return self.sparks
-
-
-db = DataBase()
-db.sparks.create({'spark': 'My Great Idea'})
-db.sparks.create({'spark': 'Really good Idea'})
-db.sparks.create({'spark': 'Really yuge Idea'})
-
-##############################################################################################
-
+from app.server.Models import ModelFactory, db
 
 ns = api.namespace('sparks', description='All the brilliant sparks to light up the world')
 
@@ -60,14 +16,14 @@ message = api.model('message', {
 
 spark = api.model('Spark', {
     'id': fields.Integer(readOnly=True, description='The unique identifier'),
-    'flame_list_id': fields.Integer(required=True, description='The Flames to which this spark is assigned'),
+    #'flame_list_id': fields.Integer(required=True, description='The Flames to which this spark is assigned'),
     'title': fields.String(required=True, description='The Title of the spark'),
-    'body': fields.String(required=True, description='The Body of the spark'),
-    'message_list_id': fields.Integer(required=True, description='List of messages'),
-    'user_id': fields.Integer(required=True, description='Owner of this idea'),
-    'rouse_user_list_id':  fields.Integer(required=True, description='List of users who admired the ideas and want it to grow'),
-    'douse_user_list_id':  fields.Integer(required=True, description='List of users who despise the ideas'),
-    'reignite_user_list_id':  fields.Integer(required=True, description='List of users who suggest it to their Tribes')
+    'body': fields.String(required=True, description='The Body of the spark')
+    #'message_list_id': fields.Integer(required=True, description='List of messages'),
+    #'user_id': fields.Integer(required=True, description='Owner of this idea'),
+    #'rouse_user_list_id':  fields.Integer(required=True, description='List of users who admired the ideas and want it to grow'),
+    #'douse_user_list_id':  fields.Integer(required=True, description='List of users who despise the ideas'),
+    #'reignite_user_list_id':  fields.Integer(required=True, description='List of users who suggest it to their Tribes')
 })
 
 @ns.route('/')
@@ -77,7 +33,9 @@ class SparksList(Resource):
     @ns.marshal_list_with(spark)
     def get(self):
         '''List all sparks'''
-        return db.sparks
+        print("In List Get")
+        print(db.sparks.get_all())
+        return db.sparks.get_all()
 
     @ns.doc('create_spark')
     @ns.expect(spark)
@@ -96,6 +54,7 @@ class Spark(Resource):
     @ns.marshal_with(spark)
     def get(self, id):
         '''Fetch a given resource'''
+        print("In Single resource get")
         return db.sparks.get(id)
 
     @ns.doc('delete_spark')
