@@ -31,10 +31,10 @@ class UsersModel(object):
         return user
 
     def update(self, id, data):
-        user = self.get(id)
+        user = self.get_by_id(id)
         user.update(data)
         return user
 
     def delete(self, id):
-        user = self.get(id)
+        user = self.get_by_id(id)
         self.users.remove(user)
