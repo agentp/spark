@@ -1,7 +1,8 @@
-from flask import Flask
+from flask import Flask, g
 from flask.ext.restful import Resource, fields, reqparse, marshal
-from app.server.Models import ModelFactory, db
-
+from app.server.Models import ModelFactory
+from app.server.Models.Authentication import auth
+from app import db
 from flask import url_for
 
 spark_fields = {
@@ -11,7 +12,7 @@ spark_fields = {
 }
 
 class SparkListAPI(Resource):
-
+    decorators = [auth.login_required]
     def __init__(self):
         self.reqparse = reqparse.RequestParser()
 
@@ -34,7 +35,7 @@ class SparkListAPI(Resource):
 
 
 class SparkAPI(Resource):
-
+    decorators = [auth.login_required]
     def __init__(self):
         self.reqparse = reqparse.RequestParser()
         self.reqparse.add_argument('title', type = str, location = 'json')
